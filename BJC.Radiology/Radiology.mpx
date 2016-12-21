@@ -1,0 +1,60 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        
+        <!-- In this section, modify the attributes based on your needs. Ensure the
+             Base attribute matches the application you are modeling.
+             More information can be found in the Management Pack Development Kit: 
+             http://msdn.microsoft.com/en-us/library/ee533867.aspx -->
+        <ClassType ID="BJC.Radiology.Radiology" Base="Windows!Microsoft.Windows.LocalApplication" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="HostServer" MinLength="0" MaxLength="256" CaseSensitive="false" Key="true" Type="string"/>
+        </ClassType>
+        
+        <ClassType ID="BJC.Radiology.RadiologyChannel" Base="Windows!Microsoft.Windows.ApplicationComponent" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false">
+          <!-- Inside this section, you can add and remove properties as needed.
+               More information can be found in the Management Pack Development Kit: 
+               http://msdn.microsoft.com/en-us/library/ee533714.aspx -->
+          <!--
+          <Property ID="Property1" Key="false" Type="string" />
+          -->
+          <Property ID="Facility" Key="true" Type="string" MaxLength="5" Required="true"/>
+          <Property ID ="ProcedureCode" Key="true" Type="string" MaxLength="5" Required ="true"/>
+          <Property ID="Priority" Key="false" Type="string" MaxLength ="8" Required="true"/>
+
+        </ClassType>
+      
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType Base="System!System.Hosting" Abstract="false" Accessibility="Public" ID="BJC.Radiology.NewRelationship_1">
+          <Source ID="Application" Type="BJC.Radiology.Radiology"></Source>
+          <Target ID="Channel" Type="BJC.Radiology.RadiologyChannel"></Target>
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        
+        <!-- This is the string users of the Operations Console and Web Console will see. 
+             Descriptions are also helpful when the user is doing a search in the Console. -->
+        <DisplayString ElementID="BJC.Radiology.Radiology">
+          <Name>Radiology Class</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="BJC.Radiology.RadiologyChannel">
+          <Name>Radiology Channel</Name>
+          <Description></Description>
+        </DisplayString>
+        <!-- Uncomment the below section if you need to add a user friendly string for each property. -->
+        <!--
+        <DisplayString ElementID="BJC.Radiology.Radiology" SubElementID="Property1">
+          <Name>Property1 Property</Name>
+          <Description></Description>
+        </DisplayString>
+        -->
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

@@ -1,0 +1,452 @@
+﻿<?xml version="1.0"?>
+
+-<ManagementPack xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ContentReadable="true">
+
+  -<Manifest>
+    -<Identity>
+      <ID>TrondMP.WeatherData</ID>
+      <Version>1.0.2.14</Version>
+    </Identity>
+
+    <Name>TrondMP.WeatherData</Name>
+
+    -<References>
+
+
+      -<Reference Alias="SCDW">
+
+        <ID>Microsoft.SystemCenter.DataWarehouse.Library</ID>
+
+        <Version>6.1.7221.0</Version>
+
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+
+      </Reference>
+
+
+      -<Reference Alias="SC">
+
+        <ID>Microsoft.SystemCenter.Library</ID>
+
+        <Version>6.1.7221.0</Version>
+
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+
+      </Reference>
+
+
+      -<Reference Alias="Windows">
+
+        <ID>Microsoft.Windows.Library</ID>
+
+        <Version>6.1.7221.0</Version>
+
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+
+      </Reference>
+
+
+      -<Reference Alias="Health">
+
+        <ID>System.Health.Library</ID>
+
+        <Version>6.1.7221.0</Version>
+
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+
+      </Reference>
+
+
+      -<Reference Alias="System">
+
+        <ID>System.Library</ID>
+
+        <Version>6.1.7221.0</Version>
+
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+
+      </Reference>
+
+
+      -<Reference Alias="Performance">
+
+        <ID>System.Performance.Library</ID>
+
+        <Version>6.1.7221.0</Version>
+
+        <PublicKeyToken>31bf3856ad364e35</PublicKeyToken>
+
+      </Reference>
+
+    </References>
+
+  </Manifest>
+
+  -<TypeDefinitions>
+    -<EntityTypes>
+
+      -<ClassTypes>
+        -<ClassType Singleton="false" Hosted="true" Base="Windows!Microsoft.Windows.ApplicationComponent" Abstract="false" Accessibility="Public" ID="TrondMP.WeatherData.AppComponentWeatherLocation">
+          <Property ID="XMLAddress" MinLength="0" Length="256" CaseSensitive="false" Key="false" Type="string"/>
+          <Property ID="FilePath" MinLength="0" Length="256" CaseSensitive="false" Key="true" Type="string"/>
+        </ClassType>
+
+        -<ClassType Singleton="false" Hosted="true" Base="Windows!Microsoft.Windows.LocalApplication" Abstract="false" Accessibility="Internal" ID="TrondMP.WeatherData.LocalApp.WeatherDataBase">
+          <Property ID="FilePath" MinLength="0" Length="256" CaseSensitive="false" Key="false" Type="string"/>
+        </ClassType>
+      </ClassTypes>
+
+      -<RelationshipTypes>
+        -<RelationshipType Base="System!System.Hosting" Abstract="false" Accessibility="Internal" ID="TrondMP.WeatherData.NewRelationship_1">
+          <Source>TrondMP.WeatherData.LocalApp.WeatherDataBase</Source>
+          <Target>TrondMP.WeatherData.AppComponentWeatherLocation</Target>
+        </RelationshipType>
+      </RelationshipTypes>
+
+    </EntityTypes>
+
+    -<ModuleTypes>
+      -<DataSourceModuleType Accessibility="Internal" ID="TrondMP.WeatherData.DataSource.WeatherDataDS" Batching="false">
+        -<Configuration>
+          <xsd:element type="xsd:integer" name="IntervalSeconds" minOccurs="1"/>
+          <xsd:element type="xsd:string" name="SyncTime" minOccurs="1"/>
+          <xsd:element type="xsd:string" name="YrUrl" minOccurs="1"/>
+          <xsd:element type="xsd:integer" name="NumberOfHours" minOccurs="1"/>
+          <xsd:element type="xsd:string" name="ForeCastType" minOccurs="1"/>
+          <xsd:element type="xsd:string" name="LocationName" minOccurs="1"/>
+        </Configuration>
+
+        -<ModuleImplementation Isolation="Any">
+          -<Composite>
+            -<MemberModules>
+              -<DataSource ID="Schedule" TypeID="System!System.SimpleScheduler">
+                <IntervalSeconds>$Config/IntervalSeconds$</IntervalSeconds>
+                <SyncTime>$Config/SyncTime$</SyncTime>
+              </DataSource>
+
+              -<ProbeAction ID="Probe" TypeID="TrondMP.WeatherData.ProbeAction.GetWeatherData">
+                <YrUrl>$Config/YrUrl$</YrUrl>
+                <NumberOfHours>$Config/NumberOfHours$</NumberOfHours>
+                <ForeCastType>$Config/ForeCastType$</ForeCastType>
+                <LocationName>$Config/LocationName$</LocationName>
+              </ProbeAction>
+            </MemberModules>
+
+            -<Composition>
+              -<Node ID="Probe">
+                <Node ID="Schedule"/>
+              </Node>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+      </DataSourceModuleType>
+
+      -<ProbeActionModuleType Accessibility="Internal" ID="TrondMP.WeatherData.ProbeAction.GetWeatherData" Batching="false" PassThrough="false">
+        -<Configuration>
+          <xsd:element type="xsd:string" name="YrUrl" minOccurs="1"/>
+          <xsd:element type="xsd:integer" name="NumberOfHours" minOccurs="1"/>
+          <xsd:element type="xsd:string" name="ForeCastType" minOccurs="1"/>
+          <xsd:element type="xsd:string" name="LocationName" minOccurs="1"/>
+        </Configuration>
+
+        -<ModuleImplementation Isolation="Any">
+          -<Composite>
+            -<MemberModules>
+              -<ProbeAction ID="Probe" TypeID="Windows!Microsoft.Windows.PowerShellPropertyBagTriggerOnlyProbe">
+                <ScriptName>WeatherData-Yr.no.ps1</ScriptName>
+                <ScriptBody> Param ($YrUrl,$NumberOfHours,$ForeCastType, $LocationName) #XML Weatherdata interpreter for yr.no #Param xmldata URL $api = new-Object -ComObject 'Mom.ScriptAPI' $bag = $api.CreatePropertyBag() $evt=new-object System.Diagnostics.EventLog("Application") $evt.Source="WMI" $infoevent=[System.Diagnostics.EventLogEntryType]::Information $evt.WriteEntry("Getting weatherdata with these parameters $YrURL $NumberOfHours $ForeCastType",$infoevent,2000) if (!($YrUrl)) { $YrUrl="http://www.yr.no/sted/Norge/MÃ¸re_og_Romsdal/Rauma/Ã…ndalsnes/varsel.xml" } $clnt = new-object System.Net.WebClient [xml]$XmlWeatherData = $clnt.downloadString($YrUrl) if (!($LocationName)) { $LocationName = $xmlweatherdata.weatherdata.location.Name } $StartTime = Get-Date $ForecastXMLDataArray = $XmlWeatherData.weatherdata.forecast.tabular.time $ForeCastArray = @() $TimeSpanTotal = 0 foreach ($forecast in $ForecastXMLDataArray) { $forecastobject = "" | Select ValidFrom,ValidTo,TimeSpan,TimeSpanTotal,NormalPrecip,WindSpeed,WindDirection,WindDirectionString,Temperature,Pressure #Establish DateTime [DateTime]$ValidFrom = $forecast.From [DateTime]$ValidTo = $forecast.To $TimeSpan = $ValidTo - $ValidFrom $TimeSpan = $TimeSpan.TotalHours $TimeSpanTotal = $TimespanTotal + $TimeSpan [int]$NormalPrecip = $forecast.Precipitation.Value [int]$WindSpeed = $forecast.WindSpeed.mps [int]$WindDirection = $forecast.WindDirection.Deg $WindDirectionString = $forecast.WindDirection.Code [int]$Temperature = $forecast.temperature.value [int]$Pressure = $forecast.Pressure.value $forecastobject.ValidFrom = $ValidFrom $forecastobject.ValidTo = $ValidTo $forecastobject.TimeSpan = $TimeSpan $forecastobject.TimeSpanTotal = $TimeSpanTotal $forecastobject.NormalPrecip = $NormalPrecip $forecastobject.WindSpeed = $WindSpeed $forecastobject.WindDirection = $WindDirection $forecastobject.WindDirectionString = $WindDirectionString $forecastobject.Temperature = $Temperature $forecastobject.Pressure = $Pressure $ForeCastArray += $forecastobject } #$FromTime, #$NumberOfHours $ReturnData = $ForeCastArray | where {$_.ValidFrom -gt $FromTime} $ReturnData = $ReturnData | where {$_.TimeSpanTotal -lt $NumberOfHours} if ($ForeCastType -like "NormalPrecipForeCast") { $GetPrecipForecast = $true } Elseif ($ForeCastType -like "WindForeCast") { $GetWindForeCast = $true } Elseif ($ForeCastType -like "PressureForeCast") { $GetPressureForeCast = $true } Elseif ($ForeCastType -like "TempAverageForecast") { $GetTempAverageForecast = $true } if ($GetPrecipForecast) { $ReturnData = $ReturnData | measure-Object -Property "NormalPrecip" -Sum -Average -Maximum -Minimum [int]$PrecipSum = $ReturnData.Sum $bag.Addvalue('LocationName', $LocationName) $bag.Addvalue('NormalPrecipSum', $PrecipSum) $evt=new-object System.Diagnostics.EventLog("Application") $evt.Source="WMI" $infoevent=[System.Diagnostics.EventLogEntryType]::Information $evt.WriteEntry("Returning data PrecipSum $LocationName $PrecipSum",$infoevent,2001) } if ($GetWindForeCast) { $ReturnData = $ReturnData | measure-Object -Property "WindSpeed" -Average -Maximum -Minimum [int]$WindSpeedAverage = $ReturnData.Average $bag.Addvalue('LocationName', $LocationName) $bag.Addvalue('WindSpeedAverage', $WindSpeedAverage) $evt=new-object System.Diagnostics.EventLog("Application") $evt.Source="WMI" $infoevent=[System.Diagnostics.EventLogEntryType]::Information $evt.WriteEntry("Returning data WindSpeedAverage $LocationName $WindSpeedAverage",$infoevent,2001) } if ($GetPressureForeCast) { $ReturnData = $ReturnData | measure-Object -Property "Pressure" -Average -Maximum -Minimum } if ($GetTempAverageForecast) { $ReturnData = $ReturnData | measure-Object -Property "Temperature" -Average -Maximum -Minimum $TempAverage = $ReturnData.Average $bag.Addvalue('LocationName', $LocationName) $bag.Addvalue('TemperatureAverage', $TempAverage) } $bag </ScriptBody>
+                -<Parameters>
+                  -<Parameter>
+                    <Name>YrUrl</Name>
+                    <Value>$Config/YrUrl$</Value>
+                  </Parameter>
+                  -<Parameter>
+                    <Name>NumberOfHours</Name>
+                    <Value>$Config/NumberOfHours$</Value>
+                  </Parameter>
+
+                  -<Parameter>
+                    <Name>ForeCastType</Name>
+                    <Value>$Config/ForeCastType$</Value>
+                  </Parameter>
+
+                  -<Parameter>
+                    <Name>LocationName</Name>
+                    <Value>$Config/LocationName$</Value>
+                  </Parameter>
+                </Parameters>
+                <TimeoutSeconds>300</TimeoutSeconds>
+              </ProbeAction>
+            </MemberModules>
+
+            -<Composition>
+              <Node ID="Probe"/>
+            </Composition>
+          </Composite>
+        </ModuleImplementation>
+        <OutputType>System!System.PropertyBagData</OutputType>
+        <TriggerOnly>true</TriggerOnly>
+      </ProbeActionModuleType>
+    </ModuleTypes>
+  </TypeDefinitions>
+
+  -<Monitoring>
+    -<Discoveries>
+      -<Discovery ID="TrondMP.WeatherData.Discovery.DiscoverLocalApp" Priority="Normal" Remotable="true" ConfirmDelivery="false" Target="Windows!Microsoft.Windows.Computer" Enabled="true">
+        <Category>Discovery</Category>
+        -<DiscoveryTypes>
+          -<DiscoveryClass TypeID="TrondMP.WeatherData.LocalApp.WeatherDataBase">
+            <Property TypeID="TrondMP.WeatherData.LocalApp.WeatherDataBase" PropertyID="FilePath"/>
+          </DiscoveryClass>
+        </DiscoveryTypes>
+
+        -<DataSource ID="DS" TypeID="Windows!Microsoft.Windows.FilteredRegistryDiscoveryProvider">
+          <ComputerName>$Target/Property[Type="Windows!Microsoft.Windows.Computer"]/NetworkName$</ComputerName>
+          -<RegistryAttributeDefinitions>
+            -<RegistryAttributeDefinition>
+              <AttributeName>AppExists</AttributeName>
+              <Path>Software\TrondMP\WeatherData</Path>
+              <PathType>0</PathType>
+              <AttributeType>0</AttributeType>
+            </RegistryAttributeDefinition>
+            -<RegistryAttributeDefinition>
+              <AttributeName>FilePath</AttributeName>
+              <Path>Software\TrondMP\WeatherData\FilePath</Path>
+              <PathType>1</PathType>
+              <AttributeType>1</AttributeType>
+            </RegistryAttributeDefinition>
+          </RegistryAttributeDefinitions>
+          <Frequency>21600</Frequency>
+          <ClassId>$MPElement[Name="TrondMP.WeatherData.LocalApp.WeatherDataBase"]$</ClassId>
+
+          -<InstanceSettings>
+            -<Settings>
+              -<Setting>
+                <Name>$MPElement[Name="Windows!Microsoft.Windows.Computer"]/PrincipalName$</Name>
+                <Value>$Target/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</Value>
+              </Setting>
+              -<Setting>
+                <Name>$MPElement[Name="TrondMP.WeatherData.LocalApp.WeatherDataBase"]/FilePath$</Name>
+                <Value>$Data/Values/FilePath$</Value>
+              </Setting>
+              -<Setting>
+                <Name>$MPElement[Name="System!System.Entity"]/DisplayName$</Name>
+                <Value>Weather App Base ($Target/Property[Type="Windows!Microsoft.Windows.Computer"]/NetbiosComputerName$)</Value>
+              </Setting>
+            </Settings>
+          </InstanceSettings>
+          -<Expression>
+            -<SimpleExpression>
+              -<ValueExpression>
+                <XPathQuery Type="String">Values/AppExists</XPathQuery>
+              </ValueExpression>
+              <Operator>Equal</Operator>
+              -<ValueExpression>
+                <Value Type="String">true</Value>
+              </ValueExpression>
+            </SimpleExpression>
+          </Expression>
+        </DataSource>
+      </Discovery>
+      -<Discovery ID="TrondMP.WeatherData.Discovery.DiscoverWeatherLocationData" Priority="Normal" Remotable="true" ConfirmDelivery="true" Target="TrondMP.WeatherData.LocalApp.WeatherDataBase" Enabled="true">
+        <Category>Discovery</Category>
+        -<DiscoveryTypes>
+          -<DiscoveryClass TypeID="TrondMP.WeatherData.AppComponentWeatherLocation">
+            <Property TypeID="TrondMP.WeatherData.AppComponentWeatherLocation" PropertyID="XMLAddress"/>
+            <Property TypeID="TrondMP.WeatherData.AppComponentWeatherLocation" PropertyID="FilePath"/>
+            <Property TypeID="System!System.Entity" PropertyID="DisplayName"/>
+          </DiscoveryClass>
+        </DiscoveryTypes>
+        -<DataSource ID="PS" TypeID="Windows!Microsoft.Windows.TimedPowerShell.DiscoveryProvider">
+          <IntervalSeconds>3600</IntervalSeconds>
+          <SyncTime/>
+          <ScriptName>DiscoverWeatherDataLocations.ps1</ScriptName>
+          -<ScriptBody>
+            <![CDATA[ param($sourceId,$managedEntityId,$computerName,$FilePath) $api = new-object -comObject 'MOM.ScriptAPI' $discoveryData = $api.CreateDiscoveryData(0, $SourceId, $ManagedEntityId) $Files = @() $Location = $FilePath If (Test-Path $Location) { $a = Get-ChildItem $Location *.txt $Files += $a Foreach ($File in $Files) { $Name = $File.Name $DisplayName = $name.TrimEnd(".txt") $XMLFile = Get-Content "$Location\$name" $FileFullName = $File.Fullname $instance = $discoveryData.CreateClassInstance("$MPElement[Name='TrondMP.WeatherData.AppComponentWeatherLocation']$") $instance.AddProperty("$MPElement[Name='Windows!Microsoft.Windows.Computer']/PrincipalName$", $computerName) $instance.AddProperty("$MPElement[Name='TrondMP.WeatherData.AppComponentWeatherLocation']/XMLAddress$", $XMLFile) $instance.AddProperty("$MPElement[Name='TrondMP.WeatherData.AppComponentWeatherLocation']/FilePath$", $FileFullName) $instance.AddProperty("$MPElement[Name="System!System.Entity"]/DisplayName$", $DisplayName) $discoveryData.AddInstance($instance) } } $discoveryData ]]>
+          </ScriptBody>
+
+          -<Parameters>
+            -<Parameter>
+              <Name>sourceID</Name>
+              <Value>$MPElement$</Value>
+            </Parameter>
+            -<Parameter>
+              <Name>managedEntityID</Name>
+              <Value>$Target/Id$</Value>
+            </Parameter>
+            -<Parameter>
+              <Name>computerName</Name>
+              <Value>$Target/Host/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$</Value>
+            </Parameter>
+            -<Parameter>
+              <Name>FilePath</Name>
+              <Value>$Target/Property[Type="TrondMP.WeatherData.LocalApp.WeatherDataBase"]/FilePath$</Value>
+            </Parameter>
+          </Parameters>
+          <TimeoutSeconds>300</TimeoutSeconds>
+        </DataSource>
+      </Discovery>
+    </Discoveries>
+
+    -<Rules>
+      -<Rule ID="TrondMP.WeatherData.CustomRule.CollectPrecipWeatherData" Priority="Normal" Remotable="true" ConfirmDelivery="true" Target="TrondMP.WeatherData.AppComponentWeatherLocation" Enabled="true" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        -<DataSources>
+          -<DataSource ID="DS" TypeID="TrondMP.WeatherData.DataSource.WeatherDataDS">
+            <IntervalSeconds>1800</IntervalSeconds>
+            <SyncTime/>
+            <YrUrl>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/XMLAddress$</YrUrl>
+            <NumberOfHours>96</NumberOfHours>
+            <ForeCastType>NormalPrecipForeCast</ForeCastType>
+            <LocationName>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/FilePath$</LocationName>
+          </DataSource>
+        </DataSources>
+
+        -<ConditionDetection ID="MapToPerf" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>TrondMP</ObjectName>
+          <CounterName>NormalPrecipSum</CounterName>
+          <InstanceName>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/FilePath$</InstanceName>
+          <Value>$Data/Property[@Name='NormalPrecipSum']$</Value>
+        </ConditionDetection>
+
+        -<WriteActions>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData"/>
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData"/>
+        </WriteActions>
+      </Rule>
+      -<Rule ID="TrondMP.WeatherData.CustomRule.CollectTempAverageNext48hrs" Priority="Normal" Remotable="true" ConfirmDelivery="true" Target="TrondMP.WeatherData.AppComponentWeatherLocation" Enabled="true" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        -<DataSources>
+          -<DataSource ID="Probe" TypeID="TrondMP.WeatherData.DataSource.WeatherDataDS">
+            <IntervalSeconds>1800</IntervalSeconds>
+            <SyncTime/>
+            <YrUrl>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/XMLAddress$</YrUrl>
+            <NumberOfHours>48</NumberOfHours>
+            <ForeCastType>TempAverageForecast</ForeCastType>
+            <LocationName>$Target/Property[Type="System!System.Entity"]/DisplayName$</LocationName>
+          </DataSource>
+        </DataSources>
+        -<ConditionDetection ID="Mapper" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>TrondMP</ObjectName>
+          <CounterName>TemperatureAverage48hrs</CounterName>
+          <InstanceName>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/FilePath$</InstanceName>
+          <Value>$Data/Property[@Name='TemperatureAverage']$</Value>
+        </ConditionDetection>
+
+       -<WriteActions>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData"/>
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData"/>
+        </WriteActions>
+      </Rule>
+
+      -<Rule ID="TrondMP.WeatherData.CustomRule.CollectWindAverageNext48hrs" Priority="Normal" Remotable="true" ConfirmDelivery="true" Target="TrondMP.WeatherData.AppComponentWeatherLocation" Enabled="true" DiscardLevel="100">
+        <Category>PerformanceCollection</Category>
+        -<DataSources>
+          -<DataSource ID="DS" TypeID="TrondMP.WeatherData.DataSource.WeatherDataDS">
+            <IntervalSeconds>1800</IntervalSeconds>
+            <SyncTime/>
+            <YrUrl>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/XMLAddress$</YrUrl>
+            <NumberOfHours>48</NumberOfHours>
+            <ForeCastType>WindForeCast</ForeCastType>
+            <LocationName>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/FilePath$</LocationName>
+          </DataSource>
+        </DataSources>
+        -<ConditionDetection ID="MapToPerf" TypeID="Performance!System.Performance.DataGenericMapper">
+          <ObjectName>TrondMP</ObjectName>
+          <CounterName>WindSpeed</CounterName>
+          <InstanceName>$Target/Property[Type="TrondMP.WeatherData.AppComponentWeatherLocation"]/FilePath$</InstanceName>
+          <Value>$Data/Property[@Name='WindSpeedAverage']$</Value>
+        </ConditionDetection>
+
+        -<WriteActions>
+          <WriteAction ID="WriteToDB" TypeID="SC!Microsoft.SystemCenter.CollectPerformanceData"/>
+          <WriteAction ID="WriteToDW" TypeID="SCDW!Microsoft.SystemCenter.DataWarehouse.PublishPerformanceData"/>
+        </WriteActions>
+      </Rule>
+    </Rules>
+  </Monitoring>
+
+  -<LanguagePacks>
+    -<LanguagePack ID="NOR" IsDefault="false">
+      -<DisplayStrings>
+        -<DisplayString ElementID="TrondMP.WeatherData">
+          <Name>TrondMP WeatherData</Name>
+          <Description>Reports weather forecasting and data from yr.no</Description>
+        </DisplayString>
+
+        -<DisplayString ElementID="TrondMP.WeatherData.AppComponentWeatherLocation">
+          <Name>Weather Data Location</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.AppComponentWeatherLocation" SubElementID="FilePath">
+          <Name>File Path</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.Discovery.DiscoverLocalApp">
+          <Name>Discover Local App</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.Discovery.DiscoverWeatherLocationData">
+          <Name>Discover Weather Location Data</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.LocalApp.WeatherDataBase">
+          <Name>WeatherData Base</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.LocalApp.WeatherDataBase" SubElementID="FilePath">
+          <Name>File Path</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.NewRelationship_1">
+          <Name>WeatherAppHostsWeatherDataLocation</Name>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+    -<LanguagePack ID="ENU" IsDefault="true">
+      -<DisplayStrings>
+        -<DisplayString ElementID="TrondMP.WeatherData">
+          <Name>TrondMP WeatherData</Name>
+          <Description>Reports weather forecasting and data from yr.no</Description>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.AppComponentWeatherLocation">
+          <Name>Weather Data Location</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.AppComponentWeatherLocation" SubElementID="FilePath">
+          <Name>File Path</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.AppComponentWeatherLocation" SubElementID="XMLAddress">
+          <Name>XML Address</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.CustomRule.CollectPrecipWeatherData">
+          <Name>Collect Precip Weather Data (Sum next 96 hours)</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.CustomRule.CollectTempAverageNext48hrs">
+          <Name>Collect Temperature Average (next 48 hrs)</Name>
+          <Description/>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.CustomRule.CollectWindAverageNext48hrs">
+          <Name>Collect Wind forecast (Average next 48 hrs)</Name>
+          <Description/>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.DataSource.WeatherDataDS">
+          <Name>WeatherData DS</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.Discovery.DiscoverLocalApp">
+          <Name>Discover Local App</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.Discovery.DiscoverWeatherLocationData">
+          <Name>Discover Weather Location Data</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.LocalApp.WeatherDataBase">
+          <Name>WeatherData Base</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.LocalApp.WeatherDataBase" SubElementID="FilePath">
+          <Name>File Path</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.NewRelationship_1">
+          <Name>WeatherAppHostsWeatherDataLocation</Name>
+        </DisplayString>
+        -<DisplayString ElementID="TrondMP.WeatherData.ProbeAction.GetWeatherData">
+          <Name>Get Weather Data Proble Action</Name>
+          <Description/>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPack>

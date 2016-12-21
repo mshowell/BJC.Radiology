@@ -1,0 +1,133 @@
+ Param ($YrUrl,$NumberOfHours,$ForeCastType, $LocationName)
+    #XML Weatherdata interpreter for yr.no
+    #Param xmldata URL
+
+    $api = new-Object -ComObject 'Mom.ScriptAPI'
+    $bag = $api.CreatePropertyBag()
+
+
+
+    $evt=new-object System.Diagnostics.EventLog("Application")
+    $evt.Source="WMI"
+    $infoevent=[System.Diagnostics.EventLogEntryType]::Information
+    $evt.WriteEntry("Getting weatherdata with these parameters $YrURL $NumberOfHours $ForeCastType",$infoevent,2000)
+
+
+    if (!($YrUrl))
+    {
+    $YrUrl="http://www.yr.no/sted/Norge/MÃ¸re_og_Romsdal/Rauma/Ã…ndalsnes/varsel.xml"
+    }
+    $clnt = new-object System.Net.WebClient
+    [xml]$XmlWeatherData = $clnt.downloadString($YrUrl)
+
+    if (!($LocationName))
+    {
+    $LocationName = $xmlweatherdata.weatherdata.location.Name
+    }
+
+
+    $StartTime = Get-Date
+    $ForecastXMLDataArray = $XmlWeatherData.weatherdata.forecast.tabular.time
+
+    $ForeCastArray = @()
+    $TimeSpanTotal = 0
+    foreach ($forecast in $ForecastXMLDataArray)
+    {
+    $forecastobject = "" | Select ValidFrom,ValidTo,TimeSpan,TimeSpanTotal,NormalPrecip,WindSpeed,WindDirection,WindDirectionString,Temperature,Pressure
+    #Establish DateTime
+    [DateTime]$ValidFrom = $forecast.From
+    [DateTime]$ValidTo = $forecast.To
+    $TimeSpan = $ValidTo - $ValidFrom
+    $TimeSpan = $TimeSpan.TotalHours
+    $TimeSpanTotal = $TimespanTotal + $TimeSpan
+
+
+    [int]$NormalPrecip = $forecast.Precipitation.Value
+    [int]$WindSpeed = $forecast.WindSpeed.mps
+    [int]$WindDirection = $forecast.WindDirection.Deg
+    $WindDirectionString = $forecast.WindDirection.Code
+    [int]$Temperature = $forecast.temperature.value
+    [int]$Pressure = $forecast.Pressure.value
+
+    $forecastobject.ValidFrom = $ValidFrom
+    $forecastobject.ValidTo = $ValidTo
+    $forecastobject.TimeSpan = $TimeSpan
+    $forecastobject.TimeSpanTotal = $TimeSpanTotal
+    $forecastobject.NormalPrecip = $NormalPrecip
+    $forecastobject.WindSpeed = $WindSpeed
+    $forecastobject.WindDirection = $WindDirection
+    $forecastobject.WindDirectionString = $WindDirectionString
+    $forecastobject.Temperature = $Temperature
+    $forecastobject.Pressure = $Pressure
+
+    $ForeCastArray += $forecastobject
+
+    }
+
+
+
+    #$FromTime,
+    #$NumberOfHours
+
+
+    $ReturnData = $ForeCastArray | where {$_.ValidFrom -gt $FromTime}
+    $ReturnData = $ReturnData | where {$_.TimeSpanTotal -lt $NumberOfHours}
+
+    if ($ForeCastType -like "NormalPrecipForeCast")
+    {
+    $GetPrecipForecast = $true
+    }
+    Elseif ($ForeCastType -like "WindForeCast")
+    {
+    $GetWindForeCast = $true
+    }
+    Elseif ($ForeCastType -like "PressureForeCast")
+    {
+    $GetPressureForeCast = $true
+    }
+    Elseif ($ForeCastType -like "TempAverageForecast")
+    {
+    $GetTempAverageForecast = $true
+    }
+
+
+    if ($GetPrecipForecast)
+    {
+    $ReturnData = $ReturnData | measure-Object -Property "NormalPrecip" -Sum -Average -Maximum -Minimum
+    [int]$PrecipSum = $ReturnData.Sum
+    $bag.Addvalue('LocationName', $LocationName)
+    $bag.Addvalue('NormalPrecipSum', $PrecipSum)
+
+    $evt=new-object System.Diagnostics.EventLog("Application")
+    $evt.Source="WMI"
+    $infoevent=[System.Diagnostics.EventLogEntryType]::Information
+    $evt.WriteEntry("Returning data PrecipSum $LocationName $PrecipSum",$infoevent,2001)
+    }
+
+    if ($GetWindForeCast)
+    {
+    $ReturnData = $ReturnData | measure-Object -Property "WindSpeed" -Average -Maximum -Minimum
+    [int]$WindSpeedAverage = $ReturnData.Average
+    $bag.Addvalue('LocationName', $LocationName)
+    $bag.Addvalue('WindSpeedAverage', $WindSpeedAverage)
+
+    $evt=new-object System.Diagnostics.EventLog("Application")
+    $evt.Source="WMI"
+    $infoevent=[System.Diagnostics.EventLogEntryType]::Information
+    $evt.WriteEntry("Returning data WindSpeedAverage $LocationName $WindSpeedAverage",$infoevent,2001)
+    }
+
+    if ($GetPressureForeCast)
+    {
+    $ReturnData = $ReturnData | measure-Object -Property "Pressure" -Average -Maximum -Minimum
+    }
+
+    if ($GetTempAverageForecast)
+    {
+    $ReturnData = $ReturnData | measure-Object -Property "Temperature" -Average -Maximum -Minimum
+    $TempAverage = $ReturnData.Average
+    $bag.Addvalue('LocationName', $LocationName)
+    $bag.Addvalue('TemperatureAverage', $TempAverage)
+    }
+
+    $bag

@@ -1,0 +1,32 @@
+
+Message 1
+
+###################################
+		Field Separator              MSH.01 |
+		Encoding Characters          MSH.02 ^~\&
+Sending Application          MSH.03 IMAGEKEY_EMAGEON_2
+Sending Facility             MSH.04 MBMC
+Receiving Application        MSH.05 CDR__S
+Receiving Facility           MSH.06 BJC_SYSTEM
+Date/Time of Message         MSH.07 20161202074153-0600^S
+		Security                     MSH.08 EMAGEON2016120207415316168381
+Message Type                 MSH.09 ORU^R01
+		Message Control ID           MSH.10 2016120235379760
+Processing ID                MSH.11 P
+Version ID                   MSH.12 2.2
+		Set ID - PID                 PID.01 1
+Patient ID (External ID)     PID.02 000000000000000015310818^^^64
+		Patient Name                 PID.05 MALLOY^CHARLES
+		Date/Time of Birth           PID.07 19170529^D
+		Set ID - OBR                 OBR.01 1
+Filler Order Number          OBR.03 17431471^RIS_IDX_3
+Universal Service Identifier OBR.04 X71010POR^^99239
+Observation Date/Time        OBR.07 20161202031541-0600^S
+Results Rpt/Status Chng - Da OBR.22 20161202074153-0600^S
+Result Status                OBR.25 P
+		Set ID - OBX                 OBX.01 1
+Value Type                   OBX.02 RP
+Observation Identifier       OBX.03 X71010POR^^99239
+Observation Value            OBX.05 1.2.840.113745.101000.1153000.42703.3114.20927368^IMAGEKEY_EMAGEON_2
+Observ Result Status         OBX.11 P
+Producer's ID                OBX.15 10^MBMC^99015

@@ -1,0 +1,68 @@
+
+Message 1
+
+###################################
+Field Separator              MSH.01 |
+Encoding Characters          MSH.02 ^~\&
+Sending Application          MSH.03 RIS
+Sending Facility             MSH.04 SLCH
+Receiving Facility           MSH.06 SLCH
+Date/Time of Message         MSH.07 201612060840
+Message Type                 MSH.09 ORU^R01
+Message Control ID           MSH.10 RMS
+Processing ID                MSH.11 P
+Version ID                   MSH.12 2.4
+			Set ID - PID                 PID.01 1
+			Patient ID (Internal ID)     PID.03 9942889510^^^SLCH^MR~15313649^^^SLCH^EE~000000000^^^SLCH^SS
+			Patient Name                 PID.05 MARTIN^TRENTON^^^^
+			Date/Time of Birth           PID.07 201604270000
+			Sex                          PID.08 M
+			Race                         PID.10 C
+			Patient Address              PID.11 117 FRANKLIN ST^^LICKING^MO^65542^USA
+			Phone Number - Home          PID.13 4176642067
+			Marital Status               PID.16 S
+			Religion                     PID.17 UNK
+			Patient Account Number       PID.18 110006157338^^^SLCH^PN
+Patient Class                PV1.02 O
+Assigned Patient Location    PV1.03 RAD^^^SLCH
+Attending Doctor             PV1.07 1036104^PATEL^KAMLESH^B.^^^M.D.
+Referring Doctor             PV1.08 ^^
+Consulting Doctor            PV1.09 ^^
+Hospital Service             PV1.10 RAD
+Admitting Doctor             PV1.17 1004979^NAIDOO^SYBILL^^^^PNP
+Visit Number                 PV1.19 110006157338^^^SLCH^VN
+Financial Class              PV1.20 CA
+Visit Indicator              PV1.51 V
+Placer Order Number          OBR.02 TW818631140^TW
+Filler Order Number          OBR.03 39943483
+Universal Service Identifier OBR.04 MDXSKULL^70260 SKULL MINIMUM 4 VIEWS^DTL_SVC_CD
+Priority                     OBR.05 ROUTINE
+Observation Date/Time        OBR.07 201612060826
+Collector Identifier         OBR.10 RHB
+Specimen Source              OBR.15 ^^^^ 
+Ordering Provider            OBR.16 1004979^NAIDOO^SYBILL^^^^PNP
+Results Rpt/Status Chng - Da OBR.22 201612060840
+Diagnostic Serv Sect ID      OBR.24 MDX
+Quantity/Timing              OBR.27 1^^^201612060000^^R^^ROUTINE
+Result Copies To             OBR.28 B2146182520    
+Reason For Study             OBR.31 ^abnormal head shape
+Principal Result Interpreter OBR.32 A140269^HULETT-BOWLING^REBECCA^LEE^^^M.D.
+Assistant Result Interpreter OBR.33 ^^
+Transcriptionist             OBR.35 RHB
+                             OBR.44 70260
+                             OBR.45   ~  ~  
+Set ID - OBX                 OBX.01 1
+Value Type                   OBX.02 TX
+Observation Identifier       OBX.03 MDX0035GDT
+Observation Value            OBX.05 REBECCA HULETT-BOWLING, M.D.~~~~********FINAL REPORT********~~~
+Observ Result Status         OBX.11 F
+Set ID - OBX                 OBX.01 2
+Value Type                   OBX.02 TX
+Observation Identifier       OBX.03 MDX0035GDT
+Observation Value            OBX.05 ACC#  Date Time  Exam~~39943483 Dec 06, 2016 08:26:00 70260 SKULL MINIMUM 4 VIEWS ~~EXAMINATION:    Four view skull December 6, 2016.~~HISTORY: 8-month-old boy with abnormal head shape.~~FINDINGS:  No prior studies for comparison.~~Mild brachycephaly is present. There is no evidence of craniosynostosis. ~No focal osseous lesions are seen. Mineralization is normal.~~~~IMPRESSION:  ~Mild brachycephaly without evidence of craniosynostosis.~~~~~
+Observ Result Status         OBX.11 F
+Set ID - OBX                 OBX.01 3
+Value Type                   OBX.02 TX
+Observation Identifier       OBX.03 MDX0035GDT
+Observation Value            OBX.05 Requested By: ~~Dictated By:   REBECCA HULETT-BOWLING, M.D.  on Dec  6 2016  8:40A~~This document has been electronically signed by: REBECCA HULETT-BOWLING, ~M.D. on Dec  6 2016  8:40A ~~~ ~~~
+Observ Result Status         OBX.11 F

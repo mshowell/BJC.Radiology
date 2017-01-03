@@ -52,12 +52,28 @@
     </ManagementPackReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>ChannelDiscovery.mptg</DependentUpon>
+    </Compile>
     <Compile Include="ManagementPack.mpx">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Radiology.mpx">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ChannelDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\RadChannelDisc.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scripts" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VSAC\Microsoft.SystemCenter.OperationsManager.targets" />
 </Project>

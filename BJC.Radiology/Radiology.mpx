@@ -20,7 +20,7 @@
           -->
           <Property ID="Facility" Key="true" Type="string" MaxLength="5" Required="true"/>
           <Property ID ="ProcedureCode" Key="true" Type="string" MaxLength="5" Required ="true"/>
-          <Property ID="Priority" Key="false" Type="string" MaxLength ="8" Required="true"/>
+          <Property ID="Priority" Key="true" Type="string" MaxLength ="8" Required="true"/>
 
         </ClassType>
       

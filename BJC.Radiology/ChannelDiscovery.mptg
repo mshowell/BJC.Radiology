@@ -5,42 +5,17 @@
         <Id>RadChannelDisc</Id>
         <DisplayName>RadChannelDisc</DisplayName>
         <Description>Find Radiology app and channels</Description>
-        <DataSourceId>DSRadiology</DataSourceId>
-        <DataSourceConfig>&lt;IntervalSeconds&gt;300&lt;/IntervalSeconds&gt;&lt;SyncTime&gt;&lt;/SyncTime&gt;&lt;ScriptName&gt;RadChannelDisc.ps1&lt;/ScriptName&gt;&lt;ScriptBody&gt;$IncludeFileContent/Scripts/RadChannelDisc.ps1$&lt;/ScriptBody&gt;&lt;TimeoutSeconds&gt;30&lt;/TimeoutSeconds&gt;</DataSourceConfig>
+        <DataSourceId>DSRadChannel</DataSourceId>
+        <DataSourceConfig>&lt;IntervalSeconds&gt;30&lt;/IntervalSeconds&gt;&lt;SyncTime&gt;12:00&lt;/SyncTime&gt;&lt;ScriptName&gt;RadChannelDisc.ps1&lt;/ScriptName&gt;&lt;ScriptBody&gt;$IncludeFileContent/Scripts/RadChannelDisc.ps1$&lt;/ScriptBody&gt;&lt;Parameters&gt;&lt;Parameter&gt;&lt;Name&gt;sourceID&lt;/Name&gt;&lt;Value&gt;$MPElement$&lt;/Value&gt;&lt;/Parameter&gt;&lt;Parameter&gt;&lt;Name&gt;managedEntityID&lt;/Name&gt;&lt;Value&gt;$Target/Id$&lt;/Value&gt;&lt;/Parameter&gt;&lt;Parameter&gt;&lt;Name&gt;computerName&lt;/Name&gt;&lt;Value&gt;$Target/Property[Type='BJC.Radiology.Radiology']/HostServer$&lt;/Value&gt;&lt;/Parameter&gt;&lt;/Parameters&gt;&lt;TimeoutSeconds&gt;30&lt;/TimeoutSeconds&gt;</DataSourceConfig>
         <DataSourceRunAs>SC!Microsoft.SystemCenter.PrivilegedMonitoringAccount</DataSourceRunAs>
         <DataSourceType>Windows!Microsoft.Windows.TimedPowerShell.DiscoveryProvider</DataSourceType>
-        <Target>BJC.Radiology.RadiologyChannel</Target>
+        <Target>BJC.Radiology.Radiology</Target>
         <Enabled>true</Enabled>
         <Remotable>true</Remotable>
         <Priority>Normal</Priority>
         <ConfirmDelivery>false</ConfirmDelivery>
         <Category>Discovery</Category>
         <DiscoveryClasses>
-          <DiscoveryClassItem>
-            <TypeId>BJC.Radiology.Radiology</TypeId>
-            <Properties>
-              <DiscoveredTypeProperty>
-                <TypeId>BJC.Radiology.Radiology</TypeId>
-                <Property>HostServer</Property>
-              </DiscoveredTypeProperty>
-              <DiscoveredTypeProperty>
-                <TypeId>System!System.ConfigItem</TypeId>
-                <Property>ObjectStatus</Property>
-              </DiscoveredTypeProperty>
-              <DiscoveredTypeProperty>
-                <TypeId>System!System.ConfigItem</TypeId>
-                <Property>AssetStatus</Property>
-              </DiscoveredTypeProperty>
-              <DiscoveredTypeProperty>
-                <TypeId>System!System.ConfigItem</TypeId>
-                <Property>Notes</Property>
-              </DiscoveredTypeProperty>
-              <DiscoveredTypeProperty>
-                <TypeId>System!System.Entity</TypeId>
-                <Property>DisplayName</Property>
-              </DiscoveredTypeProperty>
-            </Properties>
-          </DiscoveryClassItem>
           <DiscoveryClassItem>
             <TypeId>BJC.Radiology.RadiologyChannel</TypeId>
             <Properties>
@@ -67,6 +42,39 @@
               <DiscoveredTypeProperty>
                 <TypeId>System!System.ConfigItem</TypeId>
                 <Property>Notes</Property>
+              </DiscoveredTypeProperty>
+              <DiscoveredTypeProperty>
+                <TypeId>System!System.Entity</TypeId>
+                <Property>DisplayName</Property>
+              </DiscoveredTypeProperty>
+            </Properties>
+          </DiscoveryClassItem>
+        </DiscoveryClasses>
+        <DiscoveryRelationships />
+      </DiscoveryConfig>
+    </Instance>
+    <Instance ID="Instancec7768c53120a4298921df5dcd634b5fd" Type="Microsoft.SystemCenter.Authoring.CodeGeneration.Monitoring.Discovery" Version="1.0.0.0">
+      <DiscoveryConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <Id>RadiologyApp</Id>
+        <DisplayName>Radiology App</DisplayName>
+        <Description>Description for the new discovery.</Description>
+        <DataSourceId>DSRadiology</DataSourceId>
+        <DataSourceConfig>&lt;IntervalSeconds&gt;60&lt;/IntervalSeconds&gt;&lt;SyncTime&gt;12:00&lt;/SyncTime&gt;&lt;ScriptName&gt;RadChannelDisc.ps1&lt;/ScriptName&gt;&lt;ScriptBody&gt;$IncludeFileContent/Scripts/RadiologyDisc.ps1$&lt;/ScriptBody&gt;&lt;Parameters&gt;&lt;Parameter&gt;&lt;Name&gt;sourceID&lt;/Name&gt;&lt;Value&gt;$MPElement$&lt;/Value&gt;&lt;/Parameter&gt;&lt;Parameter&gt;&lt;Name&gt;managedEntityID&lt;/Name&gt;&lt;Value&gt;$Target/Id$&lt;/Value&gt;&lt;/Parameter&gt;&lt;Parameter&gt;&lt;Name&gt;computerName&lt;/Name&gt;&lt;Value&gt;$Target/Property[Type="Windows!Microsoft.Windows.Computer"]/PrincipalName$&lt;/Value&gt;&lt;/Parameter&gt;&lt;/Parameters&gt;&lt;TimeoutSeconds&gt;30&lt;/TimeoutSeconds&gt;</DataSourceConfig>
+        <DataSourceRunAs>SC!Microsoft.SystemCenter.PrivilegedMonitoringAccount</DataSourceRunAs>
+        <DataSourceType>Windows!Microsoft.Windows.TimedPowerShell.DiscoveryProvider</DataSourceType>
+        <Target>Windows!Microsoft.Windows.Computer</Target>
+        <Enabled>true</Enabled>
+        <Remotable>true</Remotable>
+        <Priority>Normal</Priority>
+        <ConfirmDelivery>false</ConfirmDelivery>
+        <Category>Discovery</Category>
+        <DiscoveryClasses>
+          <DiscoveryClassItem>
+            <TypeId>BJC.Radiology.Radiology</TypeId>
+            <Properties>
+              <DiscoveredTypeProperty>
+                <TypeId>BJC.Radiology.Radiology</TypeId>
+                <Property>HostServer</Property>
               </DiscoveredTypeProperty>
               <DiscoveredTypeProperty>
                 <TypeId>System!System.Entity</TypeId>
